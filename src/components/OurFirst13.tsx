@@ -57,21 +57,6 @@ export default function OurFirst13({ onSelectStudent }: OurFirst13Props) {
 
   const activePhoto = COHORT_PHOTOS[selectedPhotoIndex];
 
-  // Helper for resilient image path fallback
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>, originalSrc: string) => {
-    const img = e.currentTarget;
-    if (!img.dataset.attempt) {
-      img.dataset.attempt = '1';
-      img.src = '/' + originalSrc;
-    } else if (img.dataset.attempt === '1') {
-      img.dataset.attempt = '2';
-      img.src = encodeURI(originalSrc);
-    } else if (img.dataset.attempt === '2') {
-      img.dataset.attempt = '3';
-      img.src = '/' + encodeURI(originalSrc);
-    }
-  };
-
   const handleStudentAvatarError = (studentId: number) => {
     setImageErrors((prev) => ({ ...prev, [studentId]: true }));
   };
@@ -192,10 +177,9 @@ export default function OurFirst13({ onSelectStudent }: OurFirst13Props) {
               onClick={() => setIsLightboxOpen(true)}
               className="relative rounded-2xl overflow-hidden border border-white/15 bg-black/50 group cursor-pointer aspect-[16/10] shadow-xl hover:border-amber-400/50 transition-all duration-300"
             >
-              <img
+              <CohortAlbumImage
                 src={activePhoto.src}
                 alt={activePhoto.title}
-                onError={(e) => handleImageError(e, activePhoto.src)}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
@@ -252,11 +236,11 @@ export default function OurFirst13({ onSelectStudent }: OurFirst13Props) {
                         : 'border-white/10 hover:border-white/30 opacity-70 hover:opacity-100'
                     }`}
                   >
-                    <img
+                    <CohortAlbumImage
                       src={photo.src}
                       alt={photo.badge}
-                      onError={(e) => handleImageError(e, photo.src)}
                       className="w-full h-full object-cover"
+                      compact
                     />
                     <div className="absolute inset-0 bg-black/20" />
                     <span className="absolute bottom-1 left-1 text-[9px] font-bold text-white px-1 rounded bg-black/70">
@@ -520,11 +504,11 @@ export default function OurFirst13({ onSelectStudent }: OurFirst13Props) {
 
           <div className="max-w-5xl max-h-[90vh] flex flex-col items-center justify-center space-y-4">
             <div className="relative rounded-2xl overflow-hidden border border-white/20 shadow-2xl max-h-[75vh]">
-              <img
+              <CohortAlbumImage
                 src={activePhoto.src}
                 alt={activePhoto.title}
-                onError={(e) => handleImageError(e, activePhoto.src)}
                 className="max-h-[75vh] w-auto object-contain mx-auto"
+                fallbackClassName="w-[min(90vw,960px)] aspect-[16/10] max-h-[75vh]"
               />
             </div>
             <div className="text-center max-w-2xl px-4">
@@ -539,4 +523,35 @@ export default function OurFirst13({ onSelectStudent }: OurFirst13Props) {
       )}
     </section>
   );
+}
+
+function CohortAlbumImage({
+  src,
+  alt,
+  className,
+  fallbackClassName = 'h-full w-full',
+  compact = false
+}: {
+  src: string;
+  alt: string;
+  className: string;
+  fallbackClassName?: string;
+  compact?: boolean;
+}) {
+  const [unavailable, setUnavailable] = useState(false);
+
+  if (unavailable) {
+    return (
+      <div
+        role="img"
+        aria-label={`${alt}: Image unavailable`}
+        className={`${fallbackClassName} flex flex-col items-center justify-center gap-2 bg-neutral-900/90 px-2 text-center text-neutral-400`}
+      >
+        <Camera className={compact ? 'h-4 w-4' : 'h-7 w-7'} />
+        <span className={compact ? 'text-[9px] leading-tight' : 'text-xs font-medium'}>Image unavailable</span>
+      </div>
+    );
+  }
+
+  return <img src={src} alt={alt} onError={() => setUnavailable(true)} className={className} />;
 }
