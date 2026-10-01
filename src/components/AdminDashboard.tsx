@@ -17,7 +17,18 @@ interface DashboardPayment {
   created_at: string | null;
 }
 
+interface DashboardCommitment {
+  id: number | string;
+  contribution_type: string;
+  full_name: string;
+  email: string;
+  phone: string | null;
+  note: string | null;
+  created_at: string | null;
+}
+
 type StatusFilter = 'all' | 'completed' | 'pending' | 'failed' | 'cancelled';
+type DashboardTab = 'payments' | 'commitments';
 
 const currencyFormatter = new Intl.NumberFormat('en-IN', {
   style: 'currency',
@@ -64,10 +75,15 @@ export default function AdminDashboard() {
   const [signingIn, setSigningIn] = useState(false);
   const [authError, setAuthError] = useState('');
   const [payments, setPayments] = useState<DashboardPayment[]>([]);
+  const [commitments, setCommitments] = useState<DashboardCommitment[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState('');
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [activeTab, setActiveTab] = useState<DashboardTab>('payments');
+  const [commitmentsLoading, setCommitmentsLoading] = useState(false);
+  const [commitmentsError, setCommitmentsError] = useState('');
+  const [commitmentsSearch, setCommitmentsSearch] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
@@ -120,6 +136,48 @@ export default function AdminDashboard() {
     };
   }, [session, refreshKey]);
 
+  useEffect(() => {
+    if (!session || activeTab !== 'commitments') {
+      if (!session) {
+        setCommitments([]);
+        setCommitmentsLoading(false);
+      }
+      return;
+    }
+
+    let active = true;
+    setCommitmentsLoading(true);
+    setCommitmentsError('');
+
+    supabase
+      .from('commitments')
+      .select('id, contribution_type, full_name, email, phone, note, created_at')
+      .order('created_at', { ascending: false })
+      .then(({ data, error }) => {
+        if (!active) return;
+        if (error) {
+          console.error('[AdminDashboard] commitments SELECT failed', {
+            code: error.code,
+            message: error.message,
+            details: error.details,
+            hint: error.hint
+          });
+          setCommitmentsError(error.message);
+          setCommitments([]);
+        } else {
+          console.info('[AdminDashboard] commitments SELECT succeeded', {
+            rowCount: data?.length ?? 0
+          });
+          setCommitments((data ?? []) as DashboardCommitment[]);
+        }
+        setCommitmentsLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [session, activeTab, refreshKey]);
+
   const visiblePayments = useMemo(() => {
     const query = search.trim().toLowerCase();
     return payments.filter((payment) => {
@@ -132,12 +190,24 @@ export default function AdminDashboard() {
     });
   }, [payments, search, statusFilter]);
 
-  const totalAmount = payments.reduce((total, payment) => (
-    payment.payment_status?.toLowerCase() === 'completed'
-      ? total + (Number(payment.amount) || 0)
-      : total
-  ), 0);
-  const successfulCount = payments.filter((payment) => payment.payment_status?.toLowerCase() === 'completed').length;
+  const visibleCommitments = useMemo(() => {
+    const query = commitmentsSearch.trim().toLowerCase();
+    return commitments.filter((commitment) => {
+      const searchable = [
+        commitment.contribution_type,
+        commitment.full_name,
+        commitment.email,
+        commitment.phone,
+        commitment.note
+      ].filter(Boolean).join(' ').toLowerCase();
+      return !query || searchable.includes(query);
+    });
+  }, [commitments, commitmentsSearch]);
+
+  const totalAmount = payments.reduce((total, payment) => total + (Number(payment.amount) || 0), 0);
+  const successfulCount = payments.filter((payment) => (
+    ['success', 'completed'].includes(payment.payment_status?.toLowerCase() ?? '')
+  )).length;
   const pendingCount = payments.filter((payment) => payment.payment_status?.toLowerCase() === 'pending').length;
 
   const handleSignIn = async (event: FormEvent<HTMLFormElement>) => {
@@ -214,12 +284,33 @@ export default function AdminDashboard() {
                 <p className="text-sm text-neutral-400">Payment confirmations and contribution totals</p>
                 <p className="mt-1 text-xs text-neutral-500">Signed in as {session.user.email}</p>
               </div>
-              <button onClick={() => setRefreshKey((key) => key + 1)} disabled={loading} className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-neutral-300 transition hover:border-amber-300/40 hover:text-white disabled:opacity-50">
-                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} /> Refresh
+              <button onClick={() => setRefreshKey((key) => key + 1)} disabled={loading || commitmentsLoading} className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-neutral-300 transition hover:border-amber-300/40 hover:text-white disabled:opacity-50">
+                <RefreshCw className={`h-4 w-4 ${loading || commitmentsLoading ? 'animate-spin' : ''}`} /> Refresh
               </button>
             </div>
 
-            {loadError ? (
+            <div role="tablist" aria-label="Admin dashboard sections" className="mb-6 flex w-full border-b border-white/10">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'payments'}
+                onClick={() => setActiveTab('payments')}
+                className={`border-b-2 px-4 py-3 text-sm font-semibold transition ${activeTab === 'payments' ? 'border-amber-300 text-amber-200' : 'border-transparent text-neutral-400 hover:text-white'}`}
+              >
+                Payments
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'commitments'}
+                onClick={() => setActiveTab('commitments')}
+                className={`border-b-2 px-4 py-3 text-sm font-semibold transition ${activeTab === 'commitments' ? 'border-amber-300 text-amber-200' : 'border-transparent text-neutral-400 hover:text-white'}`}
+              >
+                Commitments
+              </button>
+            </div>
+
+            {activeTab === 'payments' ? (loadError ? (
               <section role="alert" className="rounded-xl border border-rose-400/20 bg-rose-400/10 p-5 text-rose-100">
                 <div className="flex items-start gap-3">
                   <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-rose-300" />
@@ -297,6 +388,65 @@ export default function AdminDashboard() {
                   )}
                 </section>
               </>
+            )) : commitmentsError ? (
+              <section role="alert" className="rounded-xl border border-rose-400/20 bg-rose-400/10 p-5 text-rose-100">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-rose-300" />
+                  <div className="min-w-0 flex-1">
+                    <h2 className="font-semibold">Unable to load commitments</h2>
+                    <p className="mt-1 break-words text-sm text-rose-100/80">{commitmentsError}</p>
+                  </div>
+                  <button onClick={() => setRefreshKey((key) => key + 1)} className="rounded-md border border-rose-200/20 px-3 py-1.5 text-xs font-semibold hover:bg-rose-200/10">Retry</button>
+                </div>
+              </section>
+            ) : (
+              <section className="overflow-hidden rounded-xl border border-white/10 bg-[#0b0b10]">
+                <div className="flex flex-col gap-4 border-b border-white/10 p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+                  <div>
+                    <h2 className="font-semibold">Commitments</h2>
+                    <p className="mt-1 text-xs text-neutral-500">{visibleCommitments.length.toLocaleString('en-IN')} of {commitments.length.toLocaleString('en-IN')} records</p>
+                  </div>
+                  <label className="relative block sm:w-72">
+                    <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
+                    <input type="search" value={commitmentsSearch} onChange={(event) => setCommitmentsSearch(event.target.value)} placeholder="Search name, email, type..." className="w-full rounded-lg border border-white/10 bg-black/30 py-2 pl-9 pr-3 text-xs text-white outline-none placeholder:text-neutral-600 focus:border-amber-400/50" />
+                  </label>
+                </div>
+
+                {commitmentsLoading ? (
+                  <div className="flex min-h-56 items-center justify-center gap-3 text-sm text-neutral-400">
+                    <Loader2 className="h-5 w-5 animate-spin text-amber-300" /> Loading commitments...
+                  </div>
+                ) : visibleCommitments.length === 0 ? (
+                  <div className="px-5 py-16 text-center">
+                    <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-neutral-400"><Search className="h-5 w-5" /></div>
+                    <h3 className="text-sm font-semibold">{commitments.length ? 'No matching commitments' : 'No commitments yet'}</h3>
+                    <p className="mt-1 text-xs text-neutral-500">{commitments.length ? 'Try a different search.' : 'Submitted commitments will appear here.'}</p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="hidden overflow-x-auto md:block">
+                      <table className="w-full min-w-[1050px] text-left text-xs">
+                        <thead className="bg-white/[0.025] text-[10px] uppercase tracking-wider text-neutral-500">
+                          <tr>
+                            <th className="px-5 py-3 font-semibold">Contribution Type</th>
+                            <th className="px-4 py-3 font-semibold">Full Name</th>
+                            <th className="px-4 py-3 font-semibold">Email</th>
+                            <th className="px-4 py-3 font-semibold">Phone</th>
+                            <th className="px-4 py-3 font-semibold">Note / Message</th>
+                            <th className="px-4 py-3 font-semibold">Created Date</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/[0.06]">
+                          {visibleCommitments.map((commitment) => <CommitmentTableRow key={commitment.id} commitment={commitment} />)}
+                        </tbody>
+                      </table>
+                    </div>
+                    <div className="divide-y divide-white/[0.07] md:hidden">
+                      {visibleCommitments.map((commitment) => <CommitmentMobileRow key={commitment.id} commitment={commitment} />)}
+                    </div>
+                  </>
+                )}
+              </section>
             )}
           </>
         )}
@@ -361,5 +511,38 @@ function PaymentField({ label, value, accent = false, mono = false }: { label: s
       <p className="text-[10px] uppercase tracking-wider text-neutral-500">{label}</p>
       <p className={`mt-1 break-words ${accent ? 'font-semibold text-amber-200' : 'text-neutral-300'} ${mono ? 'font-mono' : ''}`}>{value}</p>
     </div>
+  );
+}
+
+function CommitmentTableRow({ commitment }: { commitment: DashboardCommitment }) {
+  return (
+    <tr className="align-top transition hover:bg-white/[0.025]">
+      <td className="px-5 py-4 font-medium capitalize text-amber-200">{commitment.contribution_type || '—'}</td>
+      <td className="px-4 py-4 font-semibold text-white">{commitment.full_name}</td>
+      <td className="px-4 py-4 text-neutral-300">{commitment.email}</td>
+      <td className="px-4 py-4 text-neutral-300">{commitment.phone || '—'}</td>
+      <td className="max-w-72 whitespace-normal px-4 py-4 text-neutral-400">{commitment.note || '—'}</td>
+      <td className="whitespace-nowrap px-4 py-4 text-neutral-400">{formatDate(commitment.created_at)}</td>
+    </tr>
+  );
+}
+
+function CommitmentMobileRow({ commitment }: { commitment: DashboardCommitment }) {
+  return (
+    <article className="space-y-3 p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[10px] uppercase tracking-wider text-neutral-500">Contribution Type</p>
+          <h3 className="mt-1 font-semibold capitalize text-amber-200">{commitment.contribution_type || '—'}</h3>
+        </div>
+        <p className="shrink-0 text-right text-[11px] text-neutral-500">{formatDate(commitment.created_at)}</p>
+      </div>
+      <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-xs">
+        <PaymentField label="Full Name" value={commitment.full_name} />
+        <PaymentField label="Phone" value={commitment.phone || '—'} />
+        <div className="col-span-2"><PaymentField label="Email" value={commitment.email} /></div>
+        <div className="col-span-2"><PaymentField label="Note / Message" value={commitment.note || '—'} /></div>
+      </div>
+    </article>
   );
 }
