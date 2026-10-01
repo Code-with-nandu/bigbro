@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --ink: #ffffff;
+    --ink-sub: rgba(255, 255, 255, 0.6);
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --glass-bg: rgba(18, 18, 24, 0.65);
+  }
+
+  body {
+    background-color: #050508;
+    color: #ffffff;
+    font-feature-settings: "kern" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: geometricPrecision;
+  }
+}
+
+/* Custom 3D perspective utility */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.perspective-1500 {
+  perspective: 1500px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+/* Subtle glow effects */
+.glow-amber {
+  box-shadow: 0 0 50px -10px rgba(245, 158, 11, 0.25);
+}
+
+.glow-beacon {
+  box-shadow: 0 0 80px -15px rgba(217, 119, 6, 0.35);
+}
+
+/* Glassmorphism */
+.glass-panel {
+  background: rgba(16, 17, 24, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-pill {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+/* Mask reveal headline utility */
+.reveal-mask {
+  overflow: hidden;
+}
+
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(1deg);
+  }
+}
+
+.animate-float {
+  animation: floatSlow 8s ease-in-out infinite;
+}
