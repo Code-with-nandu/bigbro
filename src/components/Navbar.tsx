@@ -8,6 +8,7 @@ interface NavbarProps {
 export default function Navbar({ onOpenJoinModal }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const isDevelopmentHistoryPage = window.location.pathname.replace(/\/$/, '') === '/development-history';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -18,12 +19,12 @@ export default function Navbar({ onOpenJoinModal }: NavbarProps) {
   }, []);
 
   const navLinks = [
-    { name: 'Why We Exist', href: '#why-we-exist' },
-    { name: 'Problems & Pillars', href: '#problems-pillars' },
-    { name: 'Our First 13', href: '#first-13' },
-    { name: 'The Journey', href: '#journey' },
-    { name: '₹10k Fund', href: '#fund' },
-    { name: 'Pay with UPI', href: '#upi-payment' }
+    { name: 'Why We Exist', href: `${isDevelopmentHistoryPage ? '/' : ''}#why-we-exist` },
+    { name: 'Problems & Pillars', href: `${isDevelopmentHistoryPage ? '/' : ''}#problems-pillars` },
+    { name: 'Our First 13', href: `${isDevelopmentHistoryPage ? '/' : ''}#first-13` },
+    { name: 'The Journey', href: `${isDevelopmentHistoryPage ? '/' : ''}#journey` },
+    { name: '₹10k Fund', href: `${isDevelopmentHistoryPage ? '/' : ''}#fund` },
+    { name: 'Pay with UPI', href: `${isDevelopmentHistoryPage ? '/' : ''}#upi-payment` }
   ];
 
   return (
@@ -39,7 +40,7 @@ export default function Navbar({ onOpenJoinModal }: NavbarProps) {
         >
           {/* Zone 1: Single text element wordmark */}
           <a
-            href="#"
+            href={isDevelopmentHistoryPage ? '/' : '#'}
             className="flex items-center gap-2 group tracking-tight text-white font-bold text-base sm:text-lg focus-visible:outline-2 focus-visible:outline-amber-400"
             aria-label="May Tera (Big Bro) home"
           >
@@ -68,7 +69,7 @@ export default function Navbar({ onOpenJoinModal }: NavbarProps) {
           {/* Zone 3: Primary actions */}
           <div className="flex items-center gap-2 sm:gap-2.5">
             <a
-              href="#upi-payment"
+              href={`${isDevelopmentHistoryPage ? '/' : ''}#upi-payment`}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-300 bg-amber-400/10 border border-amber-400/30 rounded-full hover:bg-amber-400/20 transition-all duration-180 whitespace-nowrap focus-visible:outline-2 focus-visible:outline-amber-400"
             >
               <Smartphone className="w-3.5 h-3.5" />
@@ -114,7 +115,7 @@ export default function Navbar({ onOpenJoinModal }: NavbarProps) {
             </nav>
             <div className="pt-2 border-t border-white/10 flex flex-col gap-2">
               <a
-                href="#upi-payment"
+                href={`${isDevelopmentHistoryPage ? '/' : ''}#upi-payment`}
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-full py-2.5 text-center text-xs font-bold text-neutral-950 bg-amber-400 rounded-lg hover:bg-amber-300 flex items-center justify-center gap-1.5"
               >

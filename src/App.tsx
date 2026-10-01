@@ -18,10 +18,12 @@ import Footer from './components/Footer';
 import StudentDetailModal from './components/StudentDetailModal';
 import JoinModal from './components/JoinModal';
 import AdminDashboard from './components/AdminDashboard';
+import DevelopmentHistoryPage from './components/DevelopmentHistoryPage';
 import { STUDENTS_DATA } from './data/mockData';
 import { Student } from './types';
 
 export default function App() {
+  const pathname = window.location.pathname.replace(/\/$/, '');
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [joinModalOpen, setJoinModalOpen] = useState(false);
   const [joinRole, setJoinRole] = useState<string>('mentor');
@@ -40,8 +42,24 @@ export default function App() {
     }
   };
 
-  if (window.location.pathname.replace(/\/$/, '') === '/admin') {
+  if (pathname === '/admin') {
     return <AdminDashboard />;
+  }
+
+  if (pathname === '/development-history') {
+    return (
+      <div className="min-h-screen bg-[#050508] text-white selection:bg-amber-500/30 selection:text-amber-200 font-sans antialiased overflow-x-hidden">
+        <Navbar onOpenJoinModal={handleOpenJoinModal} />
+        <DevelopmentHistoryPage />
+        <Footer />
+        <JoinModal
+          isOpen={joinModalOpen}
+          onClose={() => setJoinModalOpen(false)}
+          defaultRole={joinRole}
+          defaultAmount={joinAmount}
+        />
+      </div>
+    );
   }
 
   return (

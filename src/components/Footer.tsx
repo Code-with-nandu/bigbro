@@ -43,6 +43,8 @@ export default function Footer() {
               <li><a href="#fund" className="hover:text-white transition-colors">₹10,000 Common Fund</a></li>
               <li><a href="#upi-payment" className="text-amber-300 hover:text-amber-200 transition-colors">Support via UPI</a></li>
               <li><a href="#join" className="hover:text-white transition-colors">Become a Big Bro</a></li>
+              <li><a href="/development-history" className="hover:text-white transition-colors">Development History</a></li>
+              <li><a href="/admin" className="hover:text-white transition-colors">Admin</a></li>
             </ul>
           </div>
 
