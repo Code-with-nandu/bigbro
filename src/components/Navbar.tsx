@@ -28,7 +28,7 @@ export default function Navbar({ onOpenJoinModal }: NavbarProps) {
   ];
 
   return (
-    <header className="fixed top-0 inset-x-0 z-50 px-4 sm:px-6 py-4 transition-all duration-300 pointer-events-none">
+    <header className="fixed top-10 inset-x-0 z-50 px-4 sm:px-6 py-4 transition-all duration-300 pointer-events-none">
       <div className="max-w-6xl mx-auto flex items-center justify-between pointer-events-auto">
         {/* Floating pill navigation container */}
         <div

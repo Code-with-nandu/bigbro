@@ -19,6 +19,11 @@ import StudentDetailModal from './components/StudentDetailModal';
 import JoinModal from './components/JoinModal';
 import AdminDashboard from './components/AdminDashboard';
 import DevelopmentHistoryPage from './components/DevelopmentHistoryPage';
+import UnifiedAuth from './components/UnifiedAuth';
+import Dashboard from './components/Dashboard';
+import ProtectedRoute from './components/ProtectedRoute';
+import UserPages from './components/UserPages';
+import AuthUtilityBar from './components/AuthUtilityBar';
 import { STUDENTS_DATA } from './data/mockData';
 import { Student } from './types';
 
@@ -42,6 +47,28 @@ export default function App() {
     }
   };
 
+  if (pathname === '/login') {
+    return <><AuthUtilityBar /><UnifiedAuth initialMode="login" /></>;
+  }
+
+  if (pathname === '/signup') {
+    return <><AuthUtilityBar /><UnifiedAuth initialMode="signup" /></>;
+  }
+
+  const protectedPaths = ['/dashboard', '/register-problem', '/my-problems', '/profile', '/notifications'];
+  if (protectedPaths.includes(pathname)) {
+    return (
+      <>
+        <AuthUtilityBar />
+        <ProtectedRoute>
+          {(session) => pathname === '/dashboard'
+            ? <Dashboard session={session} />
+            : <UserPages pathname={pathname} session={session} />}
+        </ProtectedRoute>
+      </>
+    );
+  }
+
   if (pathname === '/admin') {
     return <AdminDashboard />;
   }
@@ -49,6 +76,7 @@ export default function App() {
   if (pathname === '/development-history') {
     return (
       <div className="min-h-screen bg-[#050508] text-white selection:bg-amber-500/30 selection:text-amber-200 font-sans antialiased overflow-x-hidden">
+        <AuthUtilityBar />
         <Navbar onOpenJoinModal={handleOpenJoinModal} />
         <DevelopmentHistoryPage />
         <Footer />
@@ -68,6 +96,7 @@ export default function App() {
       <ScrollProgressBar />
 
       {/* Precision Top Bar Navigation */}
+      <AuthUtilityBar />
       <Navbar onOpenJoinModal={handleOpenJoinModal} />
 
       {/* Hero with 3D Depth Interactive Constellation */}
