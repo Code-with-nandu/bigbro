@@ -2,7 +2,7 @@ import SupabaseConnectionTester from './SupabaseConnectionTester';
 
 export default function Footer() {
   return (
-    <footer className="relative border-t border-white/10 bg-[#060609] py-16 px-4 sm:px-6">
+    <footer id="footer" className="relative border-t border-white/10 bg-[#060609] py-16 px-4 sm:px-6">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-start justify-between gap-10">
         {/* Brand Lockup */}
         <div className="space-y-3 max-w-sm">

@@ -19,6 +19,7 @@ import StudentDetailModal from './components/StudentDetailModal';
 import JoinModal from './components/JoinModal';
 import AdminDashboard from './components/AdminDashboard';
 import DevelopmentHistoryPage from './components/DevelopmentHistoryPage';
+import CodersDiaryPage from './components/CodersDiaryPage';
 import UnifiedAuth from './components/UnifiedAuth';
 import Dashboard from './components/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -79,6 +80,23 @@ export default function App() {
         <AuthUtilityBar />
         <Navbar onOpenJoinModal={handleOpenJoinModal} />
         <DevelopmentHistoryPage />
+        <Footer />
+        <JoinModal
+          isOpen={joinModalOpen}
+          onClose={() => setJoinModalOpen(false)}
+          defaultRole={joinRole}
+          defaultAmount={joinAmount}
+        />
+      </div>
+    );
+  }
+
+  if (pathname === '/coders-diary') {
+    return (
+      <div className="min-h-screen bg-[#050508] text-white selection:bg-amber-500/30 selection:text-amber-200 font-sans antialiased overflow-x-hidden">
+        <AuthUtilityBar />
+        <Navbar onOpenJoinModal={handleOpenJoinModal} />
+        <CodersDiaryPage />
         <Footer />
         <JoinModal
           isOpen={joinModalOpen}
