@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from '../supabase';
 
@@ -52,6 +52,7 @@ export default function AuthUtilityBar() {
       <nav aria-label="Header navigation" className="mx-auto flex h-full max-w-6xl items-center justify-between px-2 text-[10px] sm:px-6 sm:text-xs">
         <div className="flex shrink-0 items-center">
           <a href="/coders-diary" className="whitespace-nowrap rounded px-1 py-1 font-medium text-neutral-300 transition hover:text-amber-300 sm:px-2">🧑‍💻 Coder&apos;s Diary</a>
+          <a href="/healthcare" className="whitespace-nowrap rounded px-1 py-1 font-medium text-neutral-300 transition hover:text-amber-300 sm:px-2">Healthcare Knowledge</a>
           <a href="#footer" onClick={handleFooterLinkClick} className="whitespace-nowrap rounded px-1 py-1 font-medium text-neutral-300 transition hover:text-amber-300 sm:px-2">↓ Footer</a>
         </div>
         <div className="flex shrink-0 items-center">
@@ -75,3 +76,4 @@ export default function AuthUtilityBar() {
     </div>
   );
 }
+

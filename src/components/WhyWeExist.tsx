@@ -33,14 +33,14 @@ export default function WhyWeExist() {
                   <HeartHandshake className="w-6 h-6" />
                 </div>
                 <h3 className="text-2xl font-bold text-white tracking-tight">
-                  Why Palliative Care for Our First 13?
+                  Why Palliative Care for Our First 15?
                 </h3>
                 <p className="text-sm text-neutral-300 leading-relaxed">
                   Palliative care is the art of restoring comfort, peace, and dignity to patients facing serious or end-of-life illnesses.
                   It is one of healthcare’s most urgent, under-resourced frontiers.
                 </p>
                 <p className="text-sm text-neutral-400 leading-relaxed">
-                  For our 13 young men and women from vulnerable families, palliative care is not just a skill. It transforms them from people
+                  For our 15 young men and women from vulnerable families, palliative care is not just a skill. It transforms them from people
                   viewed as "needing help" into proud, certified healers whom families and doctors deeply respect.
                 </p>
 

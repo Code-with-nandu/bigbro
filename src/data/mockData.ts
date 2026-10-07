@@ -17,7 +17,7 @@ export const INSTITUTIONAL_PARTNERSHIP = {
     "Special individual support — occasional support for genuine personal situations (case-by-case)",
     "Post-training transition support — reasonable small expenses for interviews and job transitions"
   ],
-  importantClarification: "The ₹10,000 is a common monthly fund for all 13 students, not ₹10,000 per student and not a guaranteed monthly payment to every student."
+  importantClarification: "The ₹10,000 is a common monthly fund for all 15 students, not ₹10,000 per student and not a guaranteed monthly payment to every student."
 };
 
 export interface FacultyMember {
@@ -38,7 +38,7 @@ export const FACULTY_AND_LEADERSHIP: FacultyMember[] = [
     role: "Palliative Care Faculty & Clinical Instructor",
     category: "Faculty",
     photoUrl: "/students/varati_madam.jpg",
-    bio: "Guiding the 13 trainees through rigorous bedside hospice care, symptom management, and patient dignity ethics."
+    bio: "Guiding the 15 trainees through rigorous bedside hospice care, symptom management, and patient dignity ethics."
   },
   {
     id: "sandhyashree_kc",
@@ -69,6 +69,34 @@ export const FACULTY_AND_LEADERSHIP: FacultyMember[] = [
   }
 ];
 
+const createPendingStudent = (
+  id: number,
+  name: string,
+  slug: string,
+  age: number,
+  initials: string,
+  avatarColor: string
+): Student => ({
+  id,
+  name,
+  role: "Palliative Care Trainee",
+  slug,
+  photoUrl: `/students/${slug}.jpg`,
+  age,
+  origin: "Not provided",
+  avatarColor,
+  initials,
+  module: "Not provided",
+  journeyStage: "Support",
+  progressPercentage: 0,
+  personalStory: "Profile details have not been provided.",
+  aspiration: "Not provided",
+  mentorName: "Not assigned",
+  mentorFeedback: "Not provided",
+  dailyChallengeOvercome: "Not provided",
+  supportFundBenefited: "Not provided"
+});
+
 export const STUDENTS_DATA: Student[] = [
   {
     id: 1,
@@ -90,26 +118,7 @@ export const STUDENTS_DATA: Student[] = [
     dailyChallengeOvercome: "Faced sudden emergency family medicine costs; assisted by the Big Bro need-based emergency buffer.",
     supportFundBenefited: "Essential study binder, laminated clinical charts & emergency micro-reserve"
   },
-  {
-    id: 2,
-    name: "Avi",
-    role: "Palliative Care Trainee",
-    slug: "avi",
-    photoUrl: "/students/avi.jpg",
-    age: 21,
-    origin: "West Bengal",
-    avatarColor: "from-emerald-500/20 to-teal-500/30 border-emerald-500/40 text-emerald-300",
-    initials: "AV",
-    module: "Patient Mobility & Bedside Care",
-    journeyStage: "Skill",
-    progressPercentage: 72,
-    personalStory: "First in his family to enter formal healthcare. Passionate about physical ergonomics, patient transfer, and decubitus ulcer prevention.",
-    aspiration: "Specialized in home hospice physical mobility and decubitus ulcer prevention.",
-    mentorName: "Sandhyashree K C",
-    mentorFeedback: "Shows remarkable physical empathy and safe patient transfer technique.",
-    dailyChallengeOvercome: "Overcame spoken language hesitation with Big Bro communication drills; received study stationery.",
-    supportFundBenefited: "Essential study notebooks, clinical penlight & personal care pack"
-  },
+  createPendingStudent(2, "Akshay Manohar", "akshay-manohar", 29, "AK", "from-emerald-500/20 to-teal-500/30 border-emerald-500/40 text-emerald-300"),
   {
     id: 3,
     name: "Amarnath",
@@ -310,26 +319,9 @@ export const STUDENTS_DATA: Student[] = [
     dailyChallengeOvercome: "Study printing and certification exam documentation expenses covered on time.",
     supportFundBenefited: "Essential study printing credits & electronic health records guide"
   },
-  {
-    id: 13,
-    name: "Rudra",
-    role: "Palliative Care Trainee",
-    slug: "rudra",
-    photoUrl: "/students/rudra.jpg",
-    age: 22,
-    origin: "West Bengal",
-    avatarColor: "from-emerald-600/20 to-teal-600/30 border-emerald-600/40 text-emerald-200",
-    initials: "RD",
-    module: "In-Home Palliative Visit Protocols & Bedside Safety",
-    journeyStage: "Skill",
-    progressPercentage: 64,
-    personalStory: "Committed to taking palliative comfort into patient homes. Excels in room safety adaptation, patient turning, and bedside dignity.",
-    aspiration: "Mobile palliative home care coordinator.",
-    mentorName: "Varati Madam",
-    mentorFeedback: "Proactive problem solver with high situational awareness in home care simulations.",
-    dailyChallengeOvercome: "Personal wellbeing essentials and specialized home-visit sanitizer kit provided.",
-    supportFundBenefited: "Personal care wellbeing pack & home-visit clinical documentation kit"
-  }
+  createPendingStudent(13, "ABIJAY BIJU S B", "abijay-biju-s-b", 23, "AB", "from-emerald-600/20 to-teal-600/30 border-emerald-600/40 text-emerald-200"),
+  createPendingStudent(14, "Vatan Mishra", "vatan-mishra", 22, "VM", "from-cyan-500/20 to-blue-500/30 border-cyan-500/40 text-cyan-300"),
+  createPendingStudent(15, "AMAL VELAYUDHAN T V", "amal-velayudhan-t-v", 29, "AM", "from-amber-500/20 to-orange-500/30 border-amber-500/40 text-amber-300")
 ];
 
 export const FIVE_PROBLEMS: ProblemItem[] = [
@@ -382,7 +374,7 @@ export const FIVE_PILLARS: PillarItem[] = [
     subtitle: "The ₹10,000/Month Common Protective Pool",
     answersProblemId: 1,
     actionProtocol: "A collective monthly pool of ₹10,000 provides an agile, case-by-case personal safety net across 6 need-based categories (Art of Living already covers local transit and shift meals).",
-    keyMetric: "₹10,000/mo common pool for 13 trainees (zero dropout rate)",
+    keyMetric: "₹10,000/mo common pool for 15 trainees (zero dropout rate)",
     howWeDeliver: [
       "Emergency personal needs for unexpected student hardships",
       "Essential learning expenses: notebooks, printing & charts",
@@ -455,7 +447,7 @@ export const JOURNEY_STAGES: JourneyStage[] = [
     tagline: "Stabilize the Foundation",
     description: "Art of Living covers training infrastructure, local transit, and shift meals; Big Bro’s ₹10,000 common pool absorbs emergency personal needs, study supplies, and digital data so the student can focus on learning.",
     milestones: [
-      "Baseline needs assessment across all 13 students",
+      "Baseline needs assessment across all 15 students",
       "Activation of the ₹10k/mo need-based personal support layer",
       "Big Bro 1-on-1 mentor pairing",
       "Essential study materials & digital connectivity packs distributed"
@@ -523,7 +515,7 @@ export const JOURNEY_STAGES: JourneyStage[] = [
     step: 6,
     name: "Give Forward",
     tagline: "The Circle of Brotherhood",
-    description: "The cycle completes and regenerates: graduates return to mentor the next cohort of 13 and contribute back into the ₹10,000 common fund for younger brothers and sisters.",
+    description: "The cycle completes and regenerates: graduates return to mentor the next cohort of 15 and contribute back into the ₹10,000 common fund for younger brothers and sisters.",
     milestones: [
       "Alumni return as guest mentors for new students",
       "Voluntary small contribution into the Big Bro (Mai Tera) common pool",
@@ -557,7 +549,7 @@ export const FUND_ALLOCATIONS: FundAllocation[] = [
     monthlyAmount: 1500,
     percentage: 15,
     description: "Internet and mobile data packs, essential digital requirements, and communication-related expenses for coursework and shifts.",
-    perStudentBreakdown: "Ensures all 13 trainees have uninterrupted mobile internet access",
+    perStudentBreakdown: "Ensures all 15 trainees have uninterrupted mobile internet access",
     color: "bg-sky-500"
   },
   {
@@ -606,7 +598,7 @@ export const CONTRIBUTION_TIERS: ContributionTier[] = [
     name: "Emergency & Special Support Pool",
     amount: 5000,
     scope: "50% of Total Monthly Personal Safety Net",
-    impactDescription: "Underwrites half the entire group's monthly need-based pool, shielding 13 trainees from sudden dropouts due to unforeseen shocks."
+    impactDescription: "Underwrites half the entire group's monthly need-based pool, shielding 15 trainees from sudden dropouts due to unforeseen shocks."
   },
   {
     id: "full_month",
@@ -625,7 +617,7 @@ export const PILOT_FACTS = {
   bigBroScopeSummary: "₹10,000 common monthly fund for personal, learning, digital & emergency support",
   totalMonthlyFund: 10000,
   fundCurrency: "₹",
-  fundScopeNote: "Important: The ₹10,000 is a common monthly fund for all 13 students, not ₹10,000 per student and not a guaranteed monthly payment to every student.",
+  fundScopeNote: "Important: The ₹10,000 is a common monthly fund for all 15 students, not ₹10,000 per student and not a guaranteed monthly payment to every student.",
   perStudentEquivalent: "₹769 per student per month pooled together",
   trainingDuration: "6 Months Intensive (Theory + Hospice Internship)",
   dropoutRate: "0% across current cohort",

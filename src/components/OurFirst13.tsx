@@ -131,13 +131,13 @@ export default function OurFirst13({ onSelectStudent }: OurFirst13Props) {
           <span>Cohort 01 · Community Fellowship</span>
         </div>
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white mb-3">
-          OUR FIRST 13
+          OUR FIRST 15
         </h2>
         <p className="text-base sm:text-lg text-amber-300/90 font-medium mb-3">
-          13 students. One journey. One Big Brother family.
+          15 students. One journey. One Big Brother family.
         </p>
         <p className="text-xs sm:text-sm text-neutral-300 max-w-2xl mx-auto leading-relaxed">
-          These are the first 13 young men and women of our Palliative Care training pilot.
+          These are the first 15 young men and women of our Palliative Care training pilot.
           Rooted in brotherhood, backed by our ₹10,000 common support fund, they are becoming certified frontline healers for terminal and elderly patients.
         </p>
       </div>

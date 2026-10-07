@@ -9,7 +9,7 @@ export default function Navbar({ onOpenJoinModal }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = window.location.pathname.replace(/\/$/, '');
-  const isNonHomePage = pathname === '/development-history' || pathname === '/coders-diary';
+  const isNonHomePage = pathname === '/development-history' || pathname === '/coders-diary' || pathname === '/healthcare';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,7 +22,7 @@ export default function Navbar({ onOpenJoinModal }: NavbarProps) {
   const navLinks = [
     { name: 'Why We Exist', href: `${isNonHomePage ? '/' : ''}#why-we-exist` },
     { name: 'Problems & Pillars', href: `${isNonHomePage ? '/' : ''}#problems-pillars` },
-    { name: 'Our First 13', href: `${isNonHomePage ? '/' : ''}#first-13` },
+    { name: 'Our First 15', href: `${isNonHomePage ? '/' : ''}#first-13` },
     { name: 'The Journey', href: `${isNonHomePage ? '/' : ''}#journey` },
     { name: '₹10k Fund', href: `${isNonHomePage ? '/' : ''}#fund` },
     { name: 'Pay with UPI', href: `${isNonHomePage ? '/' : ''}#upi-payment` }

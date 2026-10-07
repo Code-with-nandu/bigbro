@@ -224,7 +224,7 @@ export default function JoinModal({ isOpen, onClose, defaultRole = 'mentor', def
                   />
                 </div>
                 <div className="text-[10px] text-neutral-400">
-                  Target: ₹10,000/month covers the entire group of 13 students.
+                  Target: ₹10,000/month covers the entire group of 15 students.
                 </div>
               </div>
             )}

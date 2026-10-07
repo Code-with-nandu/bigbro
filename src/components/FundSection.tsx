@@ -32,7 +32,7 @@ export default function FundSection({ onOpenJoinModal }: FundSectionProps) {
           BIG BROTHER ₹10,000 Monthly Common Support Fund
         </h2>
         <div className="text-sm font-mono text-amber-300/90 mb-3">
-          Pilot Cohort 01 · 13 Palliative Care Trainees · (May 13 / Mai Tera)
+          Pilot Cohort 01 · 15 Palliative Care Trainees · (May 13 / Mai Tera)
         </div>
         <p className="text-base text-neutral-300 leading-relaxed">
           Art of Living provides the core training infrastructure. BIG BROTHER provides an additional, agile personal-support layer around each student.
@@ -108,7 +108,7 @@ export default function FundSection({ onOpenJoinModal }: FundSectionProps) {
             Important Clarification on the ₹10,000 Common Fund
           </div>
           <h3 className="text-base sm:text-lg font-bold text-white leading-snug">
-            The ₹10,000 is a common monthly fund for all 13 students, not ₹10,000 per student and not a guaranteed monthly payment to every student.
+            The ₹10,000 is a common monthly fund for all 15 students, not ₹10,000 per student and not a guaranteed monthly payment to every student.
           </h3>
           <p className="text-xs sm:text-sm text-neutral-200 leading-relaxed">
             This actually makes the BIG BROTHER concept stronger: Art of Living provides the core training infrastructure; BIG BROTHER provides an additional personal-support layer around the student.
@@ -171,7 +171,7 @@ export default function FundSection({ onOpenJoinModal }: FundSectionProps) {
 
           <div className="p-4 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between text-xs text-neutral-300">
             <span>Total Monthly Common Fund:</span>
-            <span className="text-base font-bold font-mono text-emerald-400">₹10,000 / month (for all 13 trainees)</span>
+            <span className="text-base font-bold font-mono text-emerald-400">₹10,000 / month (for all 15 trainees)</span>
           </div>
         </div>
 
@@ -189,7 +189,7 @@ export default function FundSection({ onOpenJoinModal }: FundSectionProps) {
 
                 <h3 className="text-xl font-bold text-white mb-2">Back the 13 Trainees</h3>
                 <p className="text-xs text-neutral-300 leading-relaxed mb-6">
-                  Select a need-based support tier or adopt the entire monthly pool of ₹10,000 for all 13 students.
+                  Select a need-based support tier or adopt the entire monthly pool of ₹10,000 for all 15 students.
                 </p>
 
                 {/* Contribution Tiers Buttons */}
@@ -245,7 +245,7 @@ export default function FundSection({ onOpenJoinModal }: FundSectionProps) {
                   <span>Or Pay Directly via Instant UPI (GPay / PhonePe / Paytm)</span>
                 </a>
                 <p className="text-center text-[10px] text-neutral-500 mt-2">
-                  100% directed to the 13 trainees' personal-support pool. Monthly transparent itemized reporting.
+                  100% directed to the 15 trainees' personal-support pool. Monthly transparent itemized reporting.
                 </p>
               </div>
             </div>

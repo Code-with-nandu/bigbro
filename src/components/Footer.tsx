@@ -30,7 +30,7 @@ export default function Footer() {
               <li><a href="#why-we-exist" className="hover:text-white transition-colors">Why We Exist</a></li>
               <li><a href="#problems-pillars" className="hover:text-white transition-colors">Five Problems</a></li>
               <li><a href="#problems-pillars" className="hover:text-white transition-colors">Five Pillars</a></li>
-              <li><a href="#first-13" className="hover:text-white transition-colors">Our First 13</a></li>
+              <li><a href="#first-13" className="hover:text-white transition-colors">Our First 15</a></li>
             </ul>
           </div>
 
@@ -44,6 +44,7 @@ export default function Footer() {
               <li><a href="#upi-payment" className="text-amber-300 hover:text-amber-200 transition-colors">Support via UPI</a></li>
               <li><a href="#join" className="hover:text-white transition-colors">Become a Big Bro</a></li>
               <li><a href="/development-history" className="hover:text-white transition-colors">Development History</a></li>
+              <li><a href="/healthcare" className="hover:text-white transition-colors">Healthcare Knowledge</a></li>
               <li><a href="/admin" className="hover:text-white transition-colors">Admin</a></li>
             </ul>
           </div>

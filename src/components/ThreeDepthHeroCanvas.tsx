@@ -64,12 +64,12 @@ export default function ThreeDepthHeroCanvas({ onSelectStudent }: { onSelectStud
     window.addEventListener('touchmove', handleTouchMove, { passive: true });
     window.addEventListener('resize', handleResize);
 
-    // Initialize 3D Nodes: 13 primary student nodes + ambient constellation particles
+    // Initialize primary student nodes + ambient constellation particles
     const nodes: Node3D[] = [];
 
-    // 13 Student Nodes arranged in a gentle protective orbital arc in 3D
+    // Student nodes arranged in a gentle protective orbital arc in 3D
     STUDENTS_DATA.forEach((student, index) => {
-      const angle = (index / 13) * Math.PI * 2;
+      const angle = (index / STUDENTS_DATA.length) * Math.PI * 2;
       const radiusX = 280 + (index % 3) * 45;
       const radiusY = 95 + (index % 2) * 35;
       const zOffset = Math.sin(angle * 2) * 120;

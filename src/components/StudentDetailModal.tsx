@@ -129,7 +129,7 @@ export default function StudentDetailModal({ student, onClose }: StudentDetailMo
               />
             </div>
             <div className="text-left text-xs">
-              <div className="font-semibold text-white">{student.name} is 1 of Our First 13</div>
+              <div className="font-semibold text-white">{student.name} is 1 of Our First 15</div>
               <p className="text-[11px] text-neutral-400">Supported by the ₹10,000 common fund & mentor network.</p>
             </div>
           </div>
@@ -137,7 +137,7 @@ export default function StudentDetailModal({ student, onClose }: StudentDetailMo
 
         {/* Footer Note */}
         <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs text-neutral-400">
-          <span>Trainee #{student.id} of 13 Pilot Members</span>
+          <span>Trainee #{student.id} of 15 Pilot Members</span>
           <span className="text-neutral-500">Demo student profile for pilot demonstration</span>
         </div>
       </div>

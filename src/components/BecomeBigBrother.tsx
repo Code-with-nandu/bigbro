@@ -19,8 +19,8 @@ export default function BecomeBigBrother({ onOpenJoinModal }: BecomeBigBrotherPr
       role: 'sponsor',
       title: 'Back the ₹10,000 Fund',
       badge: 'Direct Financial Shield',
-      description: 'Sponsor a full month (₹10,000) for all 13 students, or fund a slice (₹1,000–₹2,500) for transit passes, hot shift lunches, and emergency buffers.',
-      impact: '100% of capital shields the 13 trainees with zero overhead',
+      description: 'Sponsor a full month (₹10,000) for all 15 students, or fund a slice (₹1,000–₹2,500) for transit passes, hot shift lunches, and emergency buffers.',
+      impact: '100% of capital shields the 15 trainees with zero overhead',
       icon: Shield,
       action: 'Sponsor a Slice'
     },
@@ -119,7 +119,7 @@ export default function BecomeBigBrother({ onOpenJoinModal }: BecomeBigBrotherPr
             "When you stand on your own feet, you are free. When you help another stand, you make the world free."
           </h3>
           <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed max-w-xl mx-auto">
-            13 students. ₹10,000 monthly pool. One united brotherhood.
+            15 students. ₹10,000 monthly pool. One united brotherhood.
           </p>
           <div className="pt-4">
             <button

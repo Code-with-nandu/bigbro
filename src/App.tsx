@@ -25,6 +25,7 @@ import Dashboard from './components/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import UserPages from './components/UserPages';
 import AuthUtilityBar from './components/AuthUtilityBar';
+import HealthcareKnowledge from './components/HealthcareKnowledge';
 import { STUDENTS_DATA } from './data/mockData';
 import { Student } from './types';
 
@@ -108,6 +109,23 @@ export default function App() {
     );
   }
 
+  if (pathname === '/healthcare') {
+    return (
+      <div className="min-h-screen bg-[#050508] text-white selection:bg-amber-500/30 selection:text-amber-200 font-sans antialiased overflow-x-hidden">
+        <AuthUtilityBar />
+        <Navbar onOpenJoinModal={handleOpenJoinModal} />
+        <HealthcareKnowledge />
+        <Footer />
+        <JoinModal
+          isOpen={joinModalOpen}
+          onClose={() => setJoinModalOpen(false)}
+          defaultRole={joinRole}
+          defaultAmount={joinAmount}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#050508] text-white selection:bg-amber-500/30 selection:text-amber-200 font-sans antialiased overflow-x-hidden">
       {/* Subtle Viewport Journey Scroll Progress Bar */}
@@ -129,13 +147,13 @@ export default function App() {
       {/* 02 & 03. Five Problems & Five Pillars */}
       <ProblemsAndPillars />
 
-      {/* 04. Our First 13 (Pilot Cohort) */}
+      {/* 04. Our First 15 (Pilot Cohort) */}
       <OurFirst13 onSelectStudent={(student) => setSelectedStudent(student)} />
 
       {/* 05. Big Bro Journey */}
       <JourneySection />
 
-      {/* 06. Big Bro Common Fund (₹10,000/mo for all 13 students - May 13 / Mai Tera) */}
+      {/* 06. Big Bro Common Fund (₹10,000/mo for all 15 students - May 13 / Mai Tera) */}
       <FundSection onOpenJoinModal={handleOpenJoinModal} />
 
       {/* 07. Direct UPI Payment / Contribution Section */}

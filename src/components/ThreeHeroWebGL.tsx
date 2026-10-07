@@ -172,8 +172,8 @@ export default function ThreeHeroWebGL({ onSelectStudent }: ThreeHeroWebGLProps)
       const isAmber = index % 2 === 0;
       const baseRadius = 75 + (index % 4) * 22;
       const speed = 0.0035 + (index % 5) * 0.0008 * (index % 2 === 0 ? 1 : -1);
-      const tilt = (index / 13) * Math.PI * 0.7 - 0.35;
-      const phase = (index / 13) * Math.PI * 2;
+      const tilt = (index / STUDENTS_DATA.length) * Math.PI * 0.7 - 0.35;
+      const phase = (index / STUDENTS_DATA.length) * Math.PI * 2;
 
       // 3D sphere for student
       const orbGeo = new THREE.SphereGeometry(2.8, 16, 16);

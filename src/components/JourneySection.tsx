@@ -135,7 +135,7 @@ export default function JourneySection() {
                   <span>The Perpetual Brotherhood</span>
                 </div>
                 <p className="text-xs text-neutral-200 leading-relaxed">
-                  Giving Forward closes the loop. Today’s 13 students will become tomorrow’s elder mentors, funding the next 13 palliative care trainees with their own earnings.
+                  Giving Forward closes the loop. Today’s 15 students will become tomorrow’s elder mentors, funding the next 15 palliative care trainees with their own earnings.
                 </p>
               </div>
             ) : (
