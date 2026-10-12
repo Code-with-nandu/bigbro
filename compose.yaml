@@ -1,0 +1,15 @@
+services:
+  bigbro:
+    build:
+      context: .
+      args:
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
+        VITE_SUPABASE_PUBLISHABLE_KEY: ${VITE_SUPABASE_PUBLISHABLE_KEY}
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+      SUPABASE_URL: ${VITE_SUPABASE_URL}
+      SUPABASE_PUBLISHABLE_KEY: ${VITE_SUPABASE_PUBLISHABLE_KEY}
+    volumes:
+      - ./public/sample-sevak:/app/public/sample-sevak

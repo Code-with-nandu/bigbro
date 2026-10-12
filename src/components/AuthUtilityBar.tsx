@@ -53,9 +53,15 @@ export default function AuthUtilityBar() {
         <div className="flex shrink-0 items-center">
           <a href="/coders-diary" className="whitespace-nowrap rounded px-1 py-1 font-medium text-neutral-300 transition hover:text-amber-300 sm:px-2">🧑‍💻 Coder&apos;s Diary</a>
           <a href="/healthcare" className="whitespace-nowrap rounded px-1 py-1 font-medium text-neutral-300 transition hover:text-amber-300 sm:px-2">Healthcare Knowledge</a>
+          <a href="/sevak-attendance" className="whitespace-nowrap rounded px-1 py-1 font-medium text-neutral-300 transition hover:text-amber-300 sm:px-2">Sevak Attendance</a>
           <a href="#footer" onClick={handleFooterLinkClick} className="whitespace-nowrap rounded px-1 py-1 font-medium text-neutral-300 transition hover:text-amber-300 sm:px-2">↓ Footer</a>
         </div>
         <div className="flex shrink-0 items-center">
+          <a href="/sevak/register" aria-label="Sevak Registration Portal" className="whitespace-nowrap rounded px-1 py-1 font-medium text-neutral-300 transition hover:text-amber-300 sm:px-2">
+            <span className="sm:hidden">Sevak Portal</span>
+            <span className="hidden sm:inline">Sevak Registration Portal</span>
+          </a>
+          {authReady && <span aria-hidden="true" className="text-neutral-600">|</span>}
           {!authReady ? <span className="sr-only">Checking account…</span> : session ? (
             <>
               <a href="/dashboard" className="rounded px-1 py-1 font-medium text-neutral-300 transition hover:text-amber-300 sm:px-2">My Account</a>

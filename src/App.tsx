@@ -26,6 +26,9 @@ import ProtectedRoute from './components/ProtectedRoute';
 import UserPages from './components/UserPages';
 import AuthUtilityBar from './components/AuthUtilityBar';
 import HealthcareKnowledge from './components/HealthcareKnowledge';
+import SevakAttendancePage from './components/SevakAttendancePage';
+import SevakRegistrationPortalPage from './components/SevakRegistrationPortalPage';
+import SevakSelfRegistrationPage from './components/SevakSelfRegistrationPage';
 import { STUDENTS_DATA } from './data/mockData';
 import { Student } from './types';
 
@@ -124,6 +127,27 @@ export default function App() {
         />
       </div>
     );
+  }
+
+  if (pathname === '/sevak-attendance') {
+    return (
+      <div className="min-h-screen bg-[#050508] text-white selection:bg-amber-500/30 selection:text-amber-200 font-sans antialiased overflow-x-hidden">
+        <AuthUtilityBar />
+        <SevakAttendancePage />
+      </div>
+    );
+  }
+
+  if (pathname === '/sevak/register' || pathname === '/sevak-registration') {
+    return <SevakRegistrationPortalPage />;
+  }
+
+  if (pathname === '/sevak/create-profile') {
+    return <SevakSelfRegistrationPage page="create-profile" />;
+  }
+
+  if (pathname === '/sevak/my-profile') {
+    return <SevakSelfRegistrationPage page="my-profile" />;
   }
 
   return (

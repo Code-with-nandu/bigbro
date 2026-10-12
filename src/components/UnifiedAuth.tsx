@@ -4,6 +4,12 @@ import { supabase } from '../supabase';
 type AuthMode = 'login' | 'signup';
 type AuthMethod = 'choose' | 'email' | 'phone';
 
+function getPostAuthPath() {
+  const requestedPath = new URLSearchParams(window.location.search).get('next');
+  const allowedPaths = ['/sevak-registration', '/sevak/create-profile', '/sevak/my-profile'];
+  return requestedPath && allowedPaths.includes(requestedPath) ? requestedPath : '/dashboard';
+}
+
 interface UnifiedAuthProps {
   initialMode: AuthMode;
 }
@@ -20,6 +26,8 @@ export default function UnifiedAuth({ initialMode }: UnifiedAuthProps) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [isError, setIsError] = useState(false);
+  const postAuthPath = getPostAuthPath();
+  const postAuthUrl = new URL(postAuthPath, window.location.origin).toString();
 
   const showError = (text: string) => {
     setIsError(true);
@@ -33,7 +41,7 @@ export default function UnifiedAuth({ initialMode }: UnifiedAuthProps) {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
-        options: { redirectTo: window.location.origin },
+        options: { redirectTo: postAuthUrl },
       });
       if (error) {
         const providerName = provider === 'facebook' ? 'Facebook' : 'Google';
@@ -55,7 +63,7 @@ export default function UnifiedAuth({ initialMode }: UnifiedAuthProps) {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
-        options: { redirectTo: window.location.origin },
+        options: { redirectTo: postAuthUrl },
       });
       if (error) {
         showError(`${error.message} Enable GitHub in Supabase Dashboard → Authentication → Providers → GitHub.`);
@@ -79,17 +87,21 @@ export default function UnifiedAuth({ initialMode }: UnifiedAuthProps) {
           showError('Passwords do not match.');
           return;
         }
-        const { data, error } = await supabase.auth.signUp({ email: email.trim(), password });
+        const { data, error } = await supabase.auth.signUp({
+          email: email.trim(),
+          password,
+          options: { emailRedirectTo: postAuthUrl },
+        });
         if (error) throw error;
         if (data.session) {
-          window.location.assign('/dashboard');
+          window.location.assign(postAuthPath);
           return;
         }
         setMessage('Account created. Check your email to confirm your account before logging in.');
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
         if (error) throw error;
-        window.location.assign('/dashboard');
+        window.location.assign(postAuthPath);
       }
     } catch (error) {
       showError(error instanceof Error ? error.message : 'Authentication failed. Please try again.');
@@ -136,7 +148,7 @@ export default function UnifiedAuth({ initialMode }: UnifiedAuthProps) {
         type: 'sms',
       });
       if (error) throw error;
-      window.location.assign('/dashboard');
+      window.location.assign(postAuthPath);
     } catch (error) {
       showError(error instanceof Error ? error.message : 'Unable to verify this OTP.');
     } finally {
@@ -154,6 +166,7 @@ export default function UnifiedAuth({ initialMode }: UnifiedAuthProps) {
       <section className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0c0c12] p-6 shadow-2xl sm:p-8">
         <a href="/" className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-300">BigBro</a>
         <h1 className="mt-4 text-center text-3xl font-bold tracking-tight">Welcome to BigBro</h1>
+        <p className="mt-2 text-center text-xs text-neutral-500">Register as a Sevak? <a href="/sevak/register" className="font-semibold text-amber-300 hover:text-amber-200">Open the Sevak portal</a></p>
 
         <div className="mt-7 space-y-3">
           <button type="button" disabled={loading} onClick={() => handleOAuth('google')} className="w-full rounded-lg border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 disabled:opacity-60">Continue with Google</button>

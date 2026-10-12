@@ -49,7 +49,7 @@ const GITHUB_HEADERS = { Accept: 'application/vnd.github+json' };
 async function fetchGitHubJson<T>(url: string): Promise<{ data: T; response: Response }> {
   let response: Response;
   try {
-    response = await fetch(url, { headers: GITHUB_HEADERS });
+    response = await fetch(url, { headers: GITHUB_HEADERS, cache: 'no-store' });
   } catch {
     throw new GitHubApiError('GitHub could not be reached. Check the connection and try again.');
   }
@@ -73,10 +73,10 @@ async function fetchGitHubJson<T>(url: string): Promise<{ data: T; response: Res
   return { data: await response.json() as T, response };
 }
 
-async function fetchCommitDetails(summary: GitHubCommitSummary): Promise<HistoryCommit> {
+function toHistoryCommit(summary: GitHubCommitSummary): HistoryCommit {
   const authorName = summary.commit.author?.name || summary.commit.committer?.name || summary.author?.login || 'Unknown author';
   const authorDate = summary.commit.author?.date || summary.commit.committer?.date || null;
-  const commit = {
+  return {
     sha: summary.sha,
     message: summary.commit.message,
     authorName,
@@ -86,21 +86,27 @@ async function fetchCommitDetails(summary: GitHubCommitSummary): Promise<History
     changedFilesCount: null as number | null,
     filesError: null as string | null
   };
+}
 
+async function fetchCommitDetails(commit: HistoryCommit): Promise<Pick<HistoryCommit, 'changedFiles' | 'changedFilesCount' | 'filesError'>> {
   try {
-    const { data } = await fetchGitHubJson<GitHubCommitDetails>(`${REPOSITORY_API}/commits/${encodeURIComponent(summary.sha)}`);
+    const { data } = await fetchGitHubJson<GitHubCommitDetails>(`${REPOSITORY_API}/commits/${encodeURIComponent(commit.sha)}`);
     if (!Array.isArray(data.files)) {
-      return { ...commit, filesError: 'GitHub did not include a changed-file list for this commit.' };
+      return { changedFiles: [], changedFilesCount: null, filesError: 'GitHub did not include a changed-file list for this commit.' };
     }
     const changedFiles = data.files.map((file) => file.filename);
-    return { ...commit, changedFiles, changedFilesCount: changedFiles.length };
+    return { changedFiles, changedFilesCount: changedFiles.length, filesError: null };
   } catch (error) {
-    if (error instanceof GitHubApiError && error.isRateLimit) throw error;
     return {
-      ...commit,
+      changedFiles: [],
+      changedFilesCount: null,
       filesError: error instanceof Error ? error.message : 'Unable to fetch changed files.'
     };
   }
+}
+
+async function loadChangedFiles(commits: HistoryCommit[], update: (sha: string, details: Awaited<ReturnType<typeof fetchCommitDetails>>) => void) {
+  await Promise.all(commits.map(async (commit) => update(commit.sha, await fetchCommitDetails(commit))));
 }
 
 async function fetchHistoryPage(page: number) {
@@ -112,7 +118,7 @@ async function fetchHistoryPage(page: number) {
   const { data: summaries, response } = await fetchGitHubJson<GitHubCommitSummary[]>(url.toString());
   if (!Array.isArray(summaries)) throw new Error('GitHub returned an unexpected commit history response.');
 
-  const commits = await Promise.all(summaries.map(fetchCommitDetails));
+  const commits = summaries.map(toHistoryCommit);
   return {
     commits,
     page,
@@ -149,6 +155,9 @@ export default function DevelopmentHistoryPage() {
         setCommits(result.commits);
         setPage(result.page);
         setHasMore(result.hasMore);
+        void loadChangedFiles(result.commits, (sha, details) => {
+          if (active) setCommits((current) => current.map((commit) => commit.sha === sha ? { ...commit, ...details } : commit));
+        });
       })
       .catch((loadError: unknown) => {
         if (active) setError(loadError instanceof Error ? loadError.message : 'Unable to load development history.');
@@ -172,6 +181,9 @@ export default function DevelopmentHistoryPage() {
       setCommits((current) => [...current, ...result.commits]);
       setPage(result.page);
       setHasMore(result.hasMore);
+      void loadChangedFiles(result.commits, (sha, details) => {
+        setCommits((current) => current.map((commit) => commit.sha === sha ? { ...commit, ...details } : commit));
+      });
     } catch (loadError) {
       setLoadMoreError(loadError instanceof Error ? loadError.message : 'Unable to load more commits.');
     } finally {
