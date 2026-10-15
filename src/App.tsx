@@ -29,6 +29,7 @@ import HealthcareKnowledge from './components/HealthcareKnowledge';
 import SevakAttendancePage from './components/SevakAttendancePage';
 import SevakRegistrationPortalPage from './components/SevakRegistrationPortalPage';
 import SevakSelfRegistrationPage from './components/SevakSelfRegistrationPage';
+import SevakDashboard from './components/SevakDashboard';
 import { STUDENTS_DATA } from './data/mockData';
 import { Student } from './types';
 
@@ -60,14 +61,16 @@ export default function App() {
     return <><AuthUtilityBar /><UnifiedAuth initialMode="signup" /></>;
   }
 
-  const protectedPaths = ['/dashboard', '/register-problem', '/my-problems', '/profile', '/notifications'];
+  const protectedPaths = ['/dashboard', '/register-problem', '/my-problems', '/profile', '/notifications', '/sevak-dashboard', '/sevak-dashboard/leave', '/sevak-dashboard/medical'];
   if (protectedPaths.includes(pathname)) {
     return (
       <>
-        <AuthUtilityBar />
+        {!pathname.startsWith('/sevak-dashboard') && <AuthUtilityBar />}
         <ProtectedRoute>
           {(session) => pathname === '/dashboard'
             ? <Dashboard session={session} />
+            : pathname.startsWith('/sevak-dashboard')
+              ? <SevakDashboard session={session} pathname={pathname} />
             : <UserPages pathname={pathname} session={session} />}
         </ProtectedRoute>
       </>
