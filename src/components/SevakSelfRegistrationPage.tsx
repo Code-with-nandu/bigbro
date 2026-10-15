@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from '../supabase';
+import { isLegacySamplePhotoPath, resolveSevakProfilePhotoUrl } from '../utils/sevakProfilePhoto.mjs';
 
 interface SevakDepartment {
   id: string;
@@ -87,6 +88,7 @@ export default function SevakSelfRegistrationPage({ page }: SevakSelfRegistratio
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState('');
   const [savedPhotoUrl, setSavedPhotoUrl] = useState('');
   const [photoError, setPhotoError] = useState('');
+  const [photoSavedNotice, setPhotoSavedNotice] = useState('');
   const [removeSavedPhoto, setRemoveSavedPhoto] = useState(false);
   const [cameraOpen, setCameraOpen] = useState(false);
   const [cameraError, setCameraError] = useState('');
@@ -179,6 +181,7 @@ export default function SevakSelfRegistrationPage({ page }: SevakSelfRegistratio
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [photoNotice, setPhotoNotice] = useState('');
   const [mobileDuplicateNotice, setMobileDuplicateNotice] = useState('');
   const [retryKey, setRetryKey] = useState(0);
 
@@ -199,13 +202,11 @@ export default function SevakSelfRegistrationPage({ page }: SevakSelfRegistratio
     photoRefreshAttempted.current = false;
     const photoPath = profile?.profile_picture;
     if (!photoPath || !session) return;
-    void supabase.storage.from('sevak-profiles').createSignedUrl(photoPath, 3600).then(({ data, error }) => {
+    void resolveSevakProfilePhotoUrl(supabase.storage, photoPath).then((photoUrl) => {
       if (!active) return;
-      if (error || !data?.signedUrl) {
-        setPhotoError('Your saved profile photo could not be loaded. You can still submit profile details.');
-        return;
-      }
-      setSavedPhotoUrl(data.signedUrl);
+      setSavedPhotoUrl(photoUrl);
+    }).catch(() => {
+      if (active) setPhotoError('Your saved profile photo could not be loaded. You can still submit profile details.');
     });
     return () => { active = false; };
   }, [profile?.profile_picture, session]);
@@ -254,10 +255,6 @@ export default function SevakSelfRegistrationPage({ page }: SevakSelfRegistratio
       const ownedProfile = ((profileResult.data as OwnedSevakProfile[] | null) ?? [])[0] ?? null;
       setDepartments(loadedDepartments);
       setProfile(ownedProfile);
-      if (page === 'my-profile' && !ownedProfile) {
-        window.location.replace('/sevak/create-profile');
-        return;
-      }
       if (page === 'create-profile' && ownedProfile && ownedProfile.approval_status !== 'rejected') {
         window.location.replace('/sevak/my-profile');
         return;
@@ -308,6 +305,7 @@ export default function SevakSelfRegistrationPage({ page }: SevakSelfRegistratio
 
     setSaving(true);
     setErrorMessage('');
+    setPhotoNotice('');
     const fields = {
       name: form.name.trim(),
       mobile,
@@ -317,7 +315,7 @@ export default function SevakSelfRegistrationPage({ page }: SevakSelfRegistratio
     const result = profile
       ? await supabase.from('sevak_profiles').update(fields).eq('id', profile.id)
         .select('id, sevak_id, name, mobile, department, department_id, profile_picture, status, approval_status, rejection_reason').single()
-      : await supabase.from('sevak_profiles').insert({ ...fields, department_id: form.department_id })
+      : await supabase.from('sevak_profiles').insert({ ...fields, department_id: form.department_id, auth_user_id: session.user.id })
         .select('id, sevak_id, name, mobile, department, department_id, profile_picture, status, approval_status, rejection_reason').single();
     if (result.error) {
       logSupabaseError(operation, result.error);
@@ -374,7 +372,7 @@ export default function SevakSelfRegistrationPage({ page }: SevakSelfRegistratio
     setSaving(false);
     setProfile({ ...savedProfile, profile_picture: nextPhotoPath });
     if (photoWarning) {
-      setErrorMessage(photoWarning);
+      setPhotoNotice(photoWarning);
       return;
     }
     window.location.assign('/sevak/my-profile');
@@ -400,19 +398,76 @@ export default function SevakSelfRegistrationPage({ page }: SevakSelfRegistratio
     setRemoveSavedPhoto(false);
   };
 
+  const saveProfilePhoto = async () => {
+    if (!session || !profile || !selectedPhoto || profile.approval_status !== 'pending') return;
+    const extension = PROFILE_PHOTO_TYPES[selectedPhoto.type];
+    if (!extension || !selectedPhoto.size || selectedPhoto.size > MAX_PROFILE_PHOTO_BYTES) {
+      setPhotoError('Choose a JPEG, PNG, or WebP image no larger than 2 MB.');
+      return;
+    }
+
+    setSaving(true);
+    setPhotoError('');
+    setPhotoSavedNotice('');
+    const photoPath = `${profile.sevak_id}/profile-${crypto.randomUUID()}.${extension}`;
+    let photoUploaded = false;
+    try {
+      const upload = await supabase.storage.from('sevak-profiles').upload(photoPath, selectedPhoto, {
+        cacheControl: '3600',
+        contentType: selectedPhoto.type,
+        upsert: false,
+      });
+      if (upload.error) throw upload.error;
+      photoUploaded = true;
+
+      const update = await supabase.from('sevak_profiles').update({ profile_picture: photoPath })
+        .eq('id', profile.id).select('profile_picture').single();
+      if (update.error) throw update.error;
+      if (!update.data.profile_picture) throw new Error('Supabase did not return the saved profile photo path.');
+
+      setProfile({ ...profile, profile_picture: update.data.profile_picture });
+      setSelectedPhoto(null);
+      setPhotoSavedNotice('Profile photo saved. Your profile remains pending admin review.');
+      try {
+        setSavedPhotoUrl(await resolveSevakProfilePhotoUrl(supabase.storage, update.data.profile_picture));
+      } catch {
+        setPhotoError('The photo was saved, but its private preview could not be loaded. Reload My Profile to retry.');
+      }
+    } catch (error) {
+      if (error && typeof error === 'object' && 'message' in error) {
+        logSupabaseError(photoUploaded ? 'profile photo path update' : 'profile photo upload', error as { code?: string; message: string; details?: string; hint?: string });
+      }
+      const cleanupError = photoUploaded ? await removeOwnProfilePhoto(photoPath) : false;
+      const message = error instanceof Error
+        ? error.message
+        : error && typeof error === 'object' && 'message' in error
+        ? String(error.message)
+        : 'Supabase rejected the photo request.';
+      setPhotoError(`The profile photo could not be saved: ${message}${cleanupError ? ' The unattached private upload could not be removed.' : ''}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const refreshSavedPhoto = async () => {
     if (!profile?.profile_picture || photoRefreshAttempted.current) {
       setPhotoError('The saved profile photo is unavailable.');
       return;
     }
     photoRefreshAttempted.current = true;
-    const { data, error } = await supabase.storage.from('sevak-profiles').createSignedUrl(profile.profile_picture, 3600);
-    if (error || !data?.signedUrl) {
+    if (isLegacySamplePhotoPath(profile.profile_picture)) {
       setSavedPhotoUrl('');
-      setPhotoError('The profile photo link expired and could not be refreshed.');
+      setPhotoError('The saved profile photo file could not be loaded.');
       return;
     }
-    setSavedPhotoUrl(data.signedUrl);
+    try {
+      const photoUrl = await resolveSevakProfilePhotoUrl(supabase.storage, profile.profile_picture);
+      setPhotoError('');
+      setSavedPhotoUrl(photoUrl);
+    } catch {
+      setSavedPhotoUrl('');
+      setPhotoError('The profile photo link expired and could not be refreshed.');
+    }
   };
 
   const authNext = encodeURIComponent(page === 'my-profile' ? '/sevak/my-profile' : '/sevak/create-profile');
@@ -441,6 +496,12 @@ export default function SevakSelfRegistrationPage({ page }: SevakSelfRegistratio
               <a className="rounded-lg border border-white/15 px-4 py-2 text-sm font-semibold text-white" href={`/login?next=${authNext}`}>Sign in</a>
             </div>
           </div>
+        ) : photoNotice ? (
+          <div className="mt-6 rounded-xl border border-amber-300/20 bg-amber-300/5 p-4" role="status">
+            <p className="text-sm font-semibold text-emerald-200">Your profile was saved successfully.</p>
+            <p className="mt-2 text-sm text-amber-100">{photoNotice}</p>
+            <a href="/sevak/my-profile" className="mt-4 inline-flex rounded-lg border border-white/15 px-4 py-2 text-sm font-semibold text-white">Open My Profile</a>
+          </div>
         ) : errorMessage ? (
           <div className="mt-6">
             <p role="alert" className="rounded-xl border border-rose-400/20 bg-rose-400/10 p-3 text-sm text-rose-200">{errorMessage}</p>
@@ -459,6 +520,16 @@ export default function SevakSelfRegistrationPage({ page }: SevakSelfRegistratio
             </dl>
             <div className="mt-5">
               {savedPhotoUrl ? <img src={savedPhotoUrl} alt={`${profile.name}'s profile`} onError={() => void refreshSavedPhoto()} className="h-28 w-28 rounded-xl border border-white/10 object-cover" /> : profile.profile_picture ? <p className="text-xs text-amber-200">Loading saved profile photo…</p> : <p className="text-xs text-neutral-500">No profile photo has been added.</p>}
+              {!profile.profile_picture && profile.approval_status === 'pending' && <div className="mt-3 flex flex-wrap items-center gap-3">
+                <input ref={photoInput} type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => { handlePhotoSelected(event.target.files?.[0]); event.currentTarget.value = ''; }} className="sr-only" />
+                {photoPreviewUrl && <img src={photoPreviewUrl} alt="Selected profile photo preview" className="h-24 w-24 rounded-xl border border-white/10 object-cover" />}
+                <div className="flex flex-wrap gap-2">
+                  <button type="button" disabled={saving} onClick={() => photoInput.current?.click()} className="rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">{selectedPhoto ? 'Choose another photo' : 'Add profile photo'}</button>
+                  {selectedPhoto && <button type="button" disabled={saving} onClick={() => void saveProfilePhoto()} className="rounded-lg bg-amber-300 px-3 py-2 text-xs font-semibold text-neutral-950 disabled:opacity-50">{saving ? 'Saving photo…' : 'Save photo'}</button>}
+                  {selectedPhoto && <button type="button" disabled={saving} onClick={() => setSelectedPhoto(null)} className="rounded-lg border border-white/15 px-3 py-2 text-xs text-white disabled:opacity-50">Cancel</button>}
+                </div>
+              </div>}
+              {photoSavedNotice && <p role="status" className="mt-2 text-xs text-emerald-200">{photoSavedNotice}</p>}
               {photoError && <p role="status" className="mt-2 text-xs text-amber-200">{photoError}</p>}
             </div>
             {profile.approval_status === 'pending' && <p className="mt-5 text-sm leading-6 text-neutral-300">Your profile is awaiting review by an authorized Sevak administrator.</p>}
@@ -468,6 +539,12 @@ export default function SevakSelfRegistrationPage({ page }: SevakSelfRegistratio
               <p className="mt-2 text-sm text-neutral-300">{profile.rejection_reason || 'Please contact an administrator for details.'}</p>
               <a href="/sevak/create-profile" className="mt-4 inline-flex rounded-lg bg-amber-300 px-4 py-2 text-sm font-semibold text-neutral-950">Correct and resubmit</a>
             </div>}
+          </div>
+        ) : page === 'my-profile' ? (
+          <div className="mt-6 rounded-xl border border-white/10 bg-white/[0.025] p-5" role="status">
+            <h2 className="font-semibold text-white">No Sevak profile found for this account</h2>
+            <p className="mt-2 text-sm leading-6 text-neutral-300">Create a profile while signed in to this BigBro account. Your application will be linked to your account and appear here after submission.</p>
+            <a href="/sevak/create-profile" className="mt-4 inline-flex rounded-lg bg-amber-300 px-4 py-2 text-sm font-semibold text-neutral-950">Create a profile</a>
           </div>
         ) : page === 'create-profile' && profile && profile.approval_status !== 'rejected' ? (
           <div className="mt-6 rounded-xl border border-amber-300/20 bg-amber-300/5 p-4" role="status">

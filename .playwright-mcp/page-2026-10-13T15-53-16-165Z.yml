@@ -1,0 +1,17 @@
+- main [ref=f20e3]:
+  - generic [ref=f20e4]:
+    - generic [ref=f20e5]:
+      - link "BigBro · Sevak Portal" [ref=f20e6] [cursor=pointer]:
+        - /url: /sevak/register
+      - navigation [ref=f20e7]:
+        - link "Create profile" [ref=f20e8] [cursor=pointer]:
+          - /url: /sevak/create-profile
+        - link "My profile" [ref=f20e9] [cursor=pointer]:
+          - /url: /sevak/my-profile
+    - generic [ref=f20e10]:
+      - paragraph [ref=f20e11]: Profile Application
+      - heading "Create my Sevak profile" [level=1] [ref=f20e12]
+      - paragraph [ref=f20e13]: Submit your details for review. Only an authorized Sevak administrator can approve a profile.
+      - status [ref=f20e14]: Loading your registration…
+    - link "Back to Sevak Portal" [ref=f20e15] [cursor=pointer]:
+      - /url: /sevak/register

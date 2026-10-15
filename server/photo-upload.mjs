@@ -1,12 +1,10 @@
 import { randomUUID } from 'node:crypto';
-import { mkdir, open, unlink } from 'node:fs/promises';
-import path from 'node:path';
 import express from 'express';
 import { createClient } from '@supabase/supabase-js';
 
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 
-export function createSevakPhotoRouter({ supabaseUrl, publishableKey, imageDirectory }) {
+export function createSevakPhotoRouter({ supabaseUrl, publishableKey, clientFactory = createClient }) {
   const router = express.Router();
   router.use((req, res, next) => {
     if (req.path === '/api/sevak-profile-photo') {
@@ -28,7 +26,7 @@ export function createSevakPhotoRouter({ supabaseUrl, publishableKey, imageDirec
       return res.status(415).json({ error: 'Upload a valid JPEG image no larger than 5 MiB.' });
     }
 
-    const client = createClient(supabaseUrl, publishableKey, {
+    const client = clientFactory(supabaseUrl, publishableKey, {
       auth: { persistSession: false, autoRefreshToken: false },
       global: { headers: { Authorization: `Bearer ${token}` } },
     });
@@ -41,31 +39,24 @@ export function createSevakPhotoRouter({ supabaseUrl, publishableKey, imageDirec
     const { data: profile, error: profileError } = await client.from('sevak_profiles').select('id, sevak_id').eq('id', profileId).single();
     if (profileError || !profile) return res.status(404).json({ error: `Could not load the Sevak profile: ${profileError?.message ?? 'profile not found'}` });
 
-    // The only user-derived text in the name is a sanitized DB identifier; a UUID prevents collisions.
-    const safeId = String(profile.sevak_id).normalize('NFKD').replace(/[^a-zA-Z0-9_-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48) || 'sevak';
-    const filename = `${safeId}-${randomUUID()}.jpg`;
-    const target = path.resolve(imageDirectory, filename);
-    if (path.dirname(target) !== path.resolve(imageDirectory)) return res.status(400).json({ error: 'Invalid generated photo path.' });
-    await mkdir(imageDirectory, { recursive: true });
-    let handle;
-    try {
-      handle = await open(target, 'wx', 0o644);
-      await handle.writeFile(req.body);
-      await handle.close();
-      handle = undefined;
-    } catch (error) {
-      await handle?.close().catch(() => undefined);
-      if (error?.code === 'EEXIST') return res.status(409).json({ error: 'A photo filename collision occurred. Please retry.' });
-      console.error('[sevak-photo] file write failed', { code: error?.code ?? 'unknown', name: error?.name ?? 'Error' });
-      await unlink(target).catch(() => undefined);
-      return res.status(500).json({ error: 'Could not save the profile photo file.' });
+    const sevakId = String(profile.sevak_id ?? '');
+    if (!sevakId || sevakId === '.' || sevakId === '..' || /[\\/\u0000-\u001f]/.test(sevakId)) {
+      return res.status(400).json({ error: 'This Sevak profile has an invalid storage folder identifier.' });
     }
+    const photoPath = `${sevakId}/profile-${randomUUID()}.jpg`;
+    const storage = client.storage.from('sevak-profiles');
+    const { error: uploadError } = await storage.upload(photoPath, req.body, {
+      cacheControl: '3600',
+      contentType: 'image/jpeg',
+      upsert: false,
+    });
+    if (uploadError) return res.status(502).json({ error: `Could not upload the photo to private Storage: ${uploadError.message}` });
 
-    const photoPath = `/sample-sevak/${filename}`;
     const { data: updatedProfile, error: updateError } = await client.from('sevak_profiles').update({ profile_picture: photoPath }).eq('id', profile.id).select('id').maybeSingle();
     if (updateError || !updatedProfile) {
-      await unlink(target).catch(() => undefined);
-      return res.status(403).json({ error: `Photo file was not attached to the profile: ${updateError?.message ?? 'Row Level Security did not allow the update.'}` });
+      const { error: cleanupError } = await storage.remove([photoPath]);
+      if (cleanupError) console.error('[sevak-photo] unattached upload cleanup failed', { code: cleanupError.name ?? 'unknown' });
+      return res.status(403).json({ error: `Photo was uploaded but not attached to the profile: ${updateError?.message ?? 'Row Level Security did not allow the update.'}${cleanupError ? ' The unattached private object could not be removed.' : ''}` });
     }
     return res.status(201).json({ profile_picture: photoPath });
     } catch (error) {

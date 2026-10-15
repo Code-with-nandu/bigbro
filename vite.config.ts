@@ -13,7 +13,6 @@ export default defineConfig(({mode}) => {
         const api = createSevakPhotoRouter({
           supabaseUrl: env.VITE_SUPABASE_URL || '',
           publishableKey: env.VITE_SUPABASE_PUBLISHABLE_KEY || env.VITE_SUPABASE_ANON_KEY || '',
-          imageDirectory: path.resolve(process.cwd(), 'public/sample-sevak'),
         });
         const invokeApi = api as unknown as (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse, next: (error?: Error) => void) => void;
         server.middlewares.use((req, res, next) => {

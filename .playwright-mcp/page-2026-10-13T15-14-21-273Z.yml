@@ -1,0 +1,118 @@
+- generic [ref=f2e3]:
+  - navigation "Header navigation" [ref=f2e5]:
+    - generic [ref=f2e6]:
+      - link "🧑‍💻 Coder's Diary" [ref=f2e7] [cursor=pointer]:
+        - /url: /coders-diary
+      - link "Healthcare Knowledge" [ref=f2e8] [cursor=pointer]:
+        - /url: /healthcare
+      - link "Sevak Attendance" [ref=f2e9] [cursor=pointer]:
+        - /url: /sevak-attendance
+      - link "↓ Footer" [ref=f2e10] [cursor=pointer]:
+        - /url: "#footer"
+    - generic [ref=f2e11]:
+      - link "Sevak Registration Portal" [ref=f2e12] [cursor=pointer]:
+        - /url: /sevak/register
+      - generic [aria-hidden] [ref=f2e13]: "|"
+      - link "Login" [ref=f2e14] [cursor=pointer]:
+        - /url: /login
+      - generic [aria-hidden] [ref=f2e15]: "|"
+      - link "Sign Up" [ref=f2e16] [cursor=pointer]:
+        - /url: /signup
+  - main [ref=f2e17]:
+    - generic [ref=f2e18]:
+      - paragraph [ref=f2e19]: Sevak Attendance System
+      - heading "Sevak Attendance" [level=1] [ref=f2e20]
+      - paragraph [ref=f2e21]: Profile details and attendance sections for the three daily sessions.
+    - alert [ref=f2e22]: Sign in with an authenticated Supabase account to load test Sevak data. Row Level Security blocks anonymous access.
+    - region [ref=f2e23]:
+      - generic [ref=f2e24]:
+        - heading "Sevak Profile" [level=2] [ref=f2e25]
+        - generic [ref=f2e26]: 0 approved Sevak profiles
+      - textbox "Search approved Sevak profiles" [ref=f2e27]:
+        - /placeholder: Search approved profiles by name, mobile, ID, or department
+      - generic [ref=f2e28]:
+        - generic [ref=f2e29]: Profile picture not available
+        - generic [ref=f2e30]:
+          - generic [ref=f2e31]:
+            - paragraph [ref=f2e32]: Sevak Name
+            - paragraph [ref=f2e33]: —
+          - generic [ref=f2e34]:
+            - paragraph [ref=f2e35]: Mobile Number
+            - paragraph [ref=f2e36]: —
+          - generic [ref=f2e37]:
+            - paragraph [ref=f2e38]: Department
+            - paragraph [ref=f2e39]: —
+          - generic [ref=f2e40]:
+            - paragraph [ref=f2e41]: Status
+            - paragraph [ref=f2e42]: —
+    - region [ref=f2e43]:
+      - generic [ref=f2e44]:
+        - generic [ref=f2e45]:
+          - paragraph [ref=f2e46]: Manual entry
+          - heading "Manual Attendance" [level=2] [ref=f2e47]
+        - generic [ref=f2e48]:
+          - text: Attendance date
+          - textbox "Attendance date" [ref=f2e49]: 2026-10-13
+      - generic [ref=f2e50]:
+        - generic [ref=f2e51]:
+          - text: Search name/mobile/ID
+          - textbox "Search name/mobile/ID" [ref=f2e52]:
+            - /placeholder: Search approved active Sevaks
+        - generic [ref=f2e53]:
+          - text: Active Sevak
+          - combobox "Active Sevak" [ref=f2e54]:
+            - option "Choose a Sevak" [selected]
+        - generic [ref=f2e55]:
+          - text: Attendance type
+          - combobox "Attendance type" [ref=f2e56]:
+            - option "Morning Sadhana" [selected]
+            - option "Seva"
+            - option "Satsang"
+        - generic [ref=f2e57]:
+          - text: Status
+          - combobox "Status" [ref=f2e58]:
+            - option "PRESENT" [selected]
+            - option "ABSENT"
+        - button "Save attendance" [disabled] [ref=f2e59]
+        - paragraph [ref=f2e60]: Records are read and written through your current Supabase session and database RLS.
+      - generic [ref=f2e61]:
+        - article [ref=f2e62]:
+          - heading "🌅 Morning Sadhana" [level=3] [ref=f2e63]
+          - paragraph [ref=f2e64]: Record attendance for the morning sadhana session.
+          - generic [ref=f2e65]:
+            - paragraph [ref=f2e66]: Saved for 2026-10-13 (0)
+            - paragraph [ref=f2e67]: No saved records for this date.
+        - article [ref=f2e68]:
+          - heading "🛠️ Seva — Department-wise" [level=3] [ref=f2e69]
+          - paragraph [ref=f2e70]: Department-wise attendance for seva activities.
+          - generic [ref=f2e71]:
+            - paragraph [ref=f2e72]: Saved for 2026-10-13 (0)
+            - paragraph [ref=f2e73]: No saved records for this date.
+        - article [ref=f2e74]:
+          - heading "🎶 Night Satsang" [level=3] [ref=f2e75]
+          - paragraph [ref=f2e76]: Record attendance for satsang.
+          - generic [ref=f2e77]:
+            - paragraph [ref=f2e78]: Saved for 2026-10-13 (0)
+            - paragraph [ref=f2e79]: No saved records for this date.
+      - generic [ref=f2e80]:
+        - generic [ref=f2e81]:
+          - generic [ref=f2e82]:
+            - paragraph [ref=f2e83]: Monthly report
+            - heading "Attendance summary" [level=3] [ref=f2e84]
+          - generic [ref=f2e85]:
+            - text: Report month
+            - textbox "Report month" [ref=f2e86]: 2026-10
+        - paragraph [ref=f2e87]: Summary uses only records visible to your trusted role under Row Level Security.
+        - generic [ref=f2e88]:
+          - generic [ref=f2e89]:
+            - paragraph [ref=f2e90]: 🌅 Morning Sadhana
+            - paragraph [ref=f2e91]: "0"
+            - paragraph [ref=f2e92]: records · 0 marked present
+          - generic [ref=f2e93]:
+            - paragraph [ref=f2e94]: 🛠️ Seva — Department-wise
+            - paragraph [ref=f2e95]: "0"
+            - paragraph [ref=f2e96]: records · 0 marked present
+          - generic [ref=f2e97]:
+            - paragraph [ref=f2e98]: 🎶 Night Satsang
+            - paragraph [ref=f2e99]: "0"
+            - paragraph [ref=f2e100]: records · 0 marked present

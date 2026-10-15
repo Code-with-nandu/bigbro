@@ -8,6 +8,7 @@
     "start": "node server.mjs",
     "build": "vite build",
     "preview": "vite preview",
+    "test": "node --test",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit"
   },

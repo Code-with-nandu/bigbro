@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from '../supabase';
+import { isLegacySamplePhotoPath, resolveSevakProfilePhotoUrl } from '../utils/sevakProfilePhoto.mjs';
 
 // Temporary local portraits for the five test rows only. These do not update
 // `profile_picture` or replace profile data stored in Supabase.
@@ -414,12 +415,8 @@ export default function SevakAttendancePage() {
     let refreshTimer: number | undefined;
     setProfileImageUrl('');
     setProfileImageError('');
-    if (!selectedProfile?.profile_picture) {
-      setProfileImageLoading(false);
-      return;
-    }
-    if (selectedProfile.profile_picture.startsWith('/sample-sevak/')) {
-      setProfileImageUrl(selectedProfile.profile_picture);
+    const photoPath = selectedProfile?.profile_picture;
+    if (!selectedProfile || !photoPath) {
       setProfileImageLoading(false);
       return;
     }
@@ -428,28 +425,26 @@ export default function SevakAttendancePage() {
       setProfileImageError('Sign in to view this private profile picture.');
       return;
     }
-    const profileImageIdentity = `${selectedProfile.id}:${selectedProfile.profile_picture}`;
+    const profileImageIdentity = `${selectedProfile.id}:${photoPath}`;
     if (profileImageIdentityRef.current !== profileImageIdentity) {
       profileImageIdentityRef.current = profileImageIdentity;
       profileImageAutoRetriesRef.current = 0;
     }
     setProfileImageLoading(true);
-    supabase.storage.from('sevak-profiles').createSignedUrl(selectedProfile.profile_picture, 3600)
-      .then(({ data, error }) => {
+    resolveSevakProfilePhotoUrl(supabase.storage, photoPath)
+      .then((photoUrl) => {
         if (!active) return;
         setProfileImageLoading(false);
-        if (error) setProfileImageError(`Could not create a private photo link: ${error.message}`);
-        else if (!data?.signedUrl) setProfileImageError('Could not create a private photo link: Supabase returned no signed URL.');
-        else {
-          setProfileImageError('');
-          setProfileImageUrl(data.signedUrl);
+        setProfileImageError('');
+        setProfileImageUrl(photoUrl);
+        if (!isLegacySamplePhotoPath(photoPath)) {
           refreshTimer = window.setTimeout(() => setProfileImageRetryKey((key) => key + 1), 55 * 60 * 1000);
         }
       })
       .catch((error: unknown) => {
         if (!active) return;
         setProfileImageLoading(false);
-        setProfileImageError(`Could not create a private photo link: ${error instanceof Error ? error.message : String(error)}`);
+        setProfileImageError(`Could not load the profile photo: ${error instanceof Error ? error.message : String(error)}`);
       });
     return () => {
       active = false;
@@ -567,7 +562,7 @@ export default function SevakAttendancePage() {
     setProfiles((current) => [...current.filter((profile) => profile.id !== createdProfile.id), createdProfile]
       .sort((left, right) => left.sevak_id.localeCompare(right.sevak_id)));
     setSelectedProfileId(createdProfile.id);
-    if (savedProfilePicture?.startsWith('/sample-sevak/')) setProfileImageUrl(savedProfilePicture);
+    if (savedProfilePicture && isLegacySamplePhotoPath(savedProfilePicture)) setProfileImageUrl(savedProfilePicture);
     setMessage(`Sevak profile ${data.sevak_id} created.`);
     setNewProfile({ sevak_id: '', name: '', mobile: '', department_id: departments.find((item) => item.is_active)?.id ?? '', status: 'active' });
     setProfilePhoto(null);
@@ -590,15 +585,28 @@ export default function SevakAttendancePage() {
     const changes = approvalStatus === 'approved'
       ? { approval_status: 'approved', status: 'active', rejection_reason: null, approved_by: session.user.id, approved_at: new Date().toISOString() }
       : { approval_status: 'rejected', status: 'inactive', rejection_reason: reason, approved_by: null, approved_at: null };
-    const { data, error } = await supabase.from('sevak_profiles').update(changes).eq('id', profile.id).select('id').maybeSingle();
+    let result;
+    try {
+      result = await supabase.from('sevak_profiles').update(changes)
+        .eq('id', profile.id)
+        .eq('approval_status', 'pending')
+        .select('id')
+        .maybeSingle();
+    } catch (error) {
+      setSavingManagement(false);
+      setActionError(`Could not save the approval decision: ${error instanceof Error ? error.message : 'Check your connection and retry.'}`);
+      return;
+    }
+    const { data, error } = result;
     setSavingManagement(false);
     if (error || !data) {
-      setActionError(error ? errorMessage(error) : 'The profile was not updated. Confirm your trusted administrator role and retry.');
+      setActionError(error ? errorMessage(error) : 'This profile may already have been reviewed. Refresh the dashboard and try again.');
       return;
     }
     setMessage(approvalStatus === 'approved' ? `${profile.name} approved and activated.` : `${profile.name} rejected. The reason is available to the profile owner.`);
     setRejectingProfileId('');
     setRejectionReasonDraft('');
+    setApprovalPage(0);
     refreshAll();
   };
 
@@ -729,7 +737,7 @@ export default function SevakAttendancePage() {
                   <span className={`rounded-full px-2 py-1 text-[10px] uppercase tracking-wide ${profile.approval_status === 'approved' ? 'bg-emerald-400/10 text-emerald-200' : profile.approval_status === 'rejected' ? 'bg-rose-400/10 text-rose-200' : 'bg-amber-300/10 text-amber-200'}`}>{profile.approval_status}</span>
                   {profile.approval_status === 'pending' && <div className="flex gap-2">
                     <button type="button" disabled={savingManagement} onClick={() => void setProfileApproval(profile, 'approved')} className="rounded-lg bg-emerald-300 px-3 py-2 text-xs font-semibold text-neutral-950 disabled:opacity-50">Approve</button>
-                    <button type="button" disabled={savingManagement} onClick={() => { setRejectingProfileId(rejectingProfileId === profile.id ? '' : profile.id); setRejectionReasonDraft(''); }} className="rounded-lg border border-rose-300/30 px-3 py-2 text-xs font-semibold text-rose-100 disabled:opacity-50">Reject</button>
+                    <button type="button" disabled={savingManagement} onClick={() => { setRejectingProfileId(rejectingProfileId === profile.id ? '' : profile.id); setRejectionReasonDraft(''); setActionError(''); }} className="rounded-lg border border-rose-300/30 px-3 py-2 text-xs font-semibold text-rose-100 disabled:opacity-50">Reject</button>
                   </div>}
                 </div>
                 {profile.approval_status === 'rejected' && <p className="mt-2 text-xs text-rose-200">Reason: {profile.rejection_reason}</p>}
