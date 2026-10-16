@@ -2,7 +2,11 @@
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from '../supabase';
 
-export default function AuthUtilityBar() {
+interface AuthUtilityBarProps {
+  variant?: 'default' | 'sevak-dashboard';
+}
+
+export default function AuthUtilityBar({ variant = 'default' }: AuthUtilityBarProps) {
   const [session, setSession] = useState<Session | null>(null);
   const [authReady, setAuthReady] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
@@ -46,6 +50,35 @@ export default function AuthUtilityBar() {
     event.preventDefault();
     document.getElementById('footer')?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  if (variant === 'sevak-dashboard') {
+    const linkClass = 'shrink-0 rounded px-2 py-1 font-medium text-neutral-300 transition hover:text-amber-300';
+    return (
+      <>
+        <div className="fixed inset-x-0 top-0 z-[60] h-10 border-b border-white/10 bg-[#08090c]/95 backdrop-blur-md">
+          <nav aria-label="Main navigation" className="mx-auto flex h-full max-w-7xl items-center overflow-x-auto px-2 text-[10px] sm:px-5 sm:text-xs">
+            <div className="flex w-max min-w-full shrink-0 items-center gap-1 sm:gap-2">
+              <a href="/coders-diary" className={linkClass}>🧑‍💻 Sevak Diary</a>
+              <a href="/healthcare" className={linkClass}>Medical Fitness</a>
+              <a href="/sevak-attendance" className={linkClass}>Sevak Attendance</a>
+              <a href="/development-history#footer" className={linkClass}>↓ Footer</a>
+            </div>
+          </nav>
+        </div>
+        <div className="fixed inset-x-0 top-10 z-[60] h-10 border-b border-amber-300/10 bg-[#12131a]/95 backdrop-blur-md">
+          <nav aria-label="Sevak account navigation" className="mx-auto flex h-full max-w-7xl items-center overflow-x-auto px-2 text-[10px] sm:px-5 sm:text-xs">
+            <div className="flex w-max min-w-full shrink-0 items-center gap-1 sm:gap-2">
+              <a href="/sevak/register" className={linkClass}>Sevak Registration Portal</a>
+              <a href="/dashboard" className={linkClass}>My Account</a>
+              <button type="button" onClick={handleSignOut} disabled={!authReady || !session || signingOut} className={`${linkClass} disabled:opacity-60`}>
+                {signingOut ? 'Logging out…' : 'Logout'}
+              </button>
+            </div>
+          </nav>
+        </div>
+      </>
+    );
+  }
 
   return (
     <div className="fixed inset-x-0 top-0 z-[60] h-10 border-b border-white/10 bg-[#08090c]/95 backdrop-blur-md">

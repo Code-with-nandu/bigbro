@@ -65,12 +65,12 @@ export default function App() {
   if (protectedPaths.includes(pathname)) {
     return (
       <>
-        {!pathname.startsWith('/sevak-dashboard') && <AuthUtilityBar />}
+        <AuthUtilityBar variant={pathname.startsWith('/sevak-dashboard') ? 'sevak-dashboard' : 'default'} />
         <ProtectedRoute>
           {(session) => pathname === '/dashboard'
             ? <Dashboard session={session} />
             : pathname.startsWith('/sevak-dashboard')
-              ? <SevakDashboard session={session} pathname={pathname} />
+              ? <SevakDashboard pathname={pathname} />
             : <UserPages pathname={pathname} session={session} />}
         </ProtectedRoute>
       </>

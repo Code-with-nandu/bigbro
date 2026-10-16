@@ -1,5 +1,6 @@
 # To run this code 
 npm run dev
+npm.cmd run dev
 
 ## 2026-10-12 Codex project check
 
