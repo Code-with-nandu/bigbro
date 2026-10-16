@@ -71,6 +71,24 @@ export default function SevakDashboard({ session, pathname }: SevakDashboardProp
 
   return (
     <div className="min-h-screen bg-white font-sans text-[#263238]">
+      <div className="border-b border-[#e8e1d1] bg-[#f8f7f3] px-4 py-3 sm:px-8 lg:px-12">
+        <nav aria-label="Sevak dashboard tools" className="mx-auto grid max-w-7xl grid-cols-2 gap-2 sm:gap-3 md:grid-cols-4">
+          {features.map(({ title, href, icon: Icon }) => {
+            const active = pathname === href;
+            return (
+              <a
+                key={href}
+                href={href}
+                aria-current={active ? 'page' : undefined}
+                className={`flex min-h-11 items-center justify-center gap-2 rounded-lg border px-2 py-2.5 text-center text-xs font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#bd8d36] sm:px-3 sm:text-sm ${active ? 'border-[#bd8d36] bg-white text-[#78591d] shadow-sm' : 'border-[#e7e2d8] bg-white/70 text-[#485a61] hover:border-[#cbb782] hover:bg-white hover:text-[#78591d]'}`}
+              >
+                <Icon size={16} className="shrink-0" aria-hidden="true" />
+                <span>{title}</span>
+              </a>
+            );
+          })}
+        </nav>
+      </div>
       <header className="relative z-20 border-b border-[#e8e8e8] bg-white">
         <div className="mx-auto flex min-h-[76px] max-w-7xl items-center justify-between px-5 sm:px-8 lg:px-12">
           <a href="/sevak-dashboard" className="flex items-center gap-3" aria-label="Central Human Resources home">
